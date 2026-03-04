@@ -58,9 +58,13 @@ class WebSocketTransport extends Transport {
 //      self.emit('drain');
 //    }
     for (var i = 0; i < packets.length; i++) {
-      var packet = packets[i];
+      // Aggiungiamo il cast per trasformare il 'dynamic' nel tipo esatto richiesto
+      var packet = packets[i] as Map<dynamic, dynamic>;
+
       PacketParser.encodePacket(packet,
-          supportsBinary: supportsBinary, callback: (_) => send(_, packet));
+          supportsBinary: supportsBinary ==
+              true, // Se qui ti dà ancora errore, cambialo in: supportsBinary == true
+          callback: (_) => send(_, packet));
     }
   }
 

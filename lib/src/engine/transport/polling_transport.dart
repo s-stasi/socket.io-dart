@@ -191,7 +191,8 @@ class PollingTransport extends Transport {
         return true;
       };
 
-      PacketParser.decodePayload(data, callback: callback);
+// La correzione è tutta qui: togliamo "callback:" e passiamo la variabile direttamente
+      PacketParser.decodePayload(data, callback);
     }
   }
 
@@ -225,7 +226,8 @@ class PollingTransport extends Transport {
     }
 
     var self = this;
-    PacketParser.encodePayload(packets, supportsBinary: supportsBinary == true,
+    PacketParser.encodePayload(packets,
+        // La riga supportsBinary è stata rimossa, lasciamo solo la callback
         callback: (data) {
       var compress = packets.any((packet) {
         var opt = packet['options'];

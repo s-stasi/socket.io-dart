@@ -128,31 +128,35 @@ class _MemoryStoreAdapter extends EventEmitter implements Adapter {
     var socket;
 
     packet['nsp'] = nsp.name;
-    encoder.encode(packet, (encodedPackets) {
-      if (rooms.isNotEmpty) {
-        for (var i = 0; i < rooms.length; i++) {
-          var room = this.rooms[rooms[i]];
-          if (room == null) continue;
-          var sockets = room.sockets;
-          for (var id in sockets.keys) {
-            if (sockets.containsKey(id)) {
-              if (ids[id] != null || except.contains(id)) continue;
-              socket = nsp.connected[id];
-              if (socket != null) {
-                socket.packet(encodedPackets, packetOpts);
-                ids[id] = true;
-              }
+    // 1. Eseguiamo la codifica e salviamo il risultato in una variabile
+    var encodedPackets = encoder.encode(packet);
+
+// 2. Eseguiamo la logica di broadcasting usando il risultato
+    if (rooms.isNotEmpty) {
+      for (var i = 0; i < rooms.length; i++) {
+        var room = this.rooms[rooms[i]];
+        if (room == null) continue;
+        var sockets = room.sockets;
+        for (var id in sockets.keys) {
+          if (sockets.containsKey(id)) {
+            if (ids[id] != null || except.contains(id)) continue;
+            socket = nsp.connected[id];
+            if (socket != null) {
+              socket.packet(encodedPackets, packetOpts);
+              ids[id] = true;
             }
           }
         }
-      } else {
-        for (var id in sids.keys) {
-          if (except.contains(id)) continue;
-          socket = nsp.connected[id];
-          if (socket != null) socket.packet(encodedPackets, packetOpts);
+      }
+    } else {
+      for (var id in sids.keys) {
+        if (except.contains(id)) continue;
+        socket = nsp.connected[id];
+        if (socket != null) {
+          socket.packet(encodedPackets, packetOpts);
         }
       }
-    });
+    }
   }
 
   /// Gets a list of clients by sid.

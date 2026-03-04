@@ -55,7 +55,7 @@ class Client {
     _logger.fine('connecting to namespace $name');
     if (!server.nsps.containsKey(name)) {
       packet(<dynamic, dynamic>{
-        'type': ERROR,
+        'type': CONNECT_ERROR,
         'nsp': name,
         'data': 'Invalid namespace'
       });
@@ -140,10 +140,9 @@ class Client {
       _logger.fine('writing packet $packet');
       if (opts['preEncoded'] != true) {
         // not broadcasting, need to encode
-        encoder.encode(packet, (encodedPackets) {
-          // encode, then write results to engine
-          writeToEngine(encodedPackets);
-        });
+        var encodedPackets =
+            encoder.encode(packet); // Prende direttamente il risultato
+        writeToEngine(encodedPackets); // Lo passa al motore
       } else {
         // a broadcast pre-encodes a packet
         writeToEngine(packet);
